@@ -1,3 +1,4 @@
+# 两层神经网络用数值微分实现--调用函数
 import math
 import numpy as np
 from _01_two_layerNet import TwoLayerNet

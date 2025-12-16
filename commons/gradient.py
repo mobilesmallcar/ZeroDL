@@ -1,3 +1,4 @@
+# 数值微分与梯度计算库
 """
 数值微分与梯度计算库
 ================================
@@ -174,4 +175,3 @@ def gradient_descent(f, init_x, lr=0.01, step_num=100):
         grad = numerical_gradient(f, x)  # 计算梯度
         x = x - lr * grad  # 更新点
     return x, np.array(x_history)
-

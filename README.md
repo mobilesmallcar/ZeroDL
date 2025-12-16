@@ -22,7 +22,7 @@
   特点：**测试代码直接写在每个类或函数下方**（未集中到独立的测试文件或测试框架），便于边实现边测试、即时查看效果。  
   该分支提交频繁，历史记录多为小步尝试与临时调试，不追求代码整洁度。  
   **仅适合开发阶段参考，不建议作为最终学习或运行代码的来源**。
-- 
+
 ## 🎯 核心目标
 
 1. **实现意义**：理解神经网络每个组件的数学原理和实现细节
@@ -32,14 +32,25 @@
 ## 📁 项目结构
 
 ```
-neural_network_from_scratch/
-│   ├── common/
-│   │   ├── functions.py          # 激活函数和损失函数
-│   │   ├── layers.py             # 神经网络层实现
-│   │   ├── optimizers.py         # 优化算法
-│   │   └── test_all.py           # 统一测试框架
-│   ├── api/  # 调用层
-└── README.md             # 项目文档
+├── ZeroDL/
+│   ├── README.md # 项目介绍
+│   ├── print_project_tree.py  # 运行 可在控制台查看当前项目的文件树
+│   ├── apis/
+│   │   ├── _01_two_layerNet.py  # 两层神经网络用数值微分实现
+│   │   ├── _03_two_layerNet_backward.py  # 两层神经网络用数值微分实现
+│   │   ├── __init__.py
+│   │   ├── test_backward_network.py  # 两层神经网络用反向传播实现--调用函数
+│   │   ├── test_simple_numerical_network.py  # 两层神经网络用数值微分实现--调用函数
+│   ├── commons/
+│   │   ├── functions.py  # 神经网络激活函数与损失函数库
+│   │   ├── gradient.py  # 数值微分与梯度计算库
+│   │   ├── layer.py  # 神经网络层实现库
+│   │   ├── load_data.py  # 加载数据
+│   │   ├── optimizer.py  # 优化算法库
+│   │   ├── data/
+│   │   │   ├── train.csv
+│   │   ├── test/
+│   │   │   ├── test_all_common.py # 神经网络组件统一测试框架-自定义实现
 
 ```
 

@@ -1,7 +1,9 @@
+# 加载数据
 import pandas as pd
-from sklearn.model_selection import train_test_split    # 划分数据集
-from sklearn.preprocessing import MinMaxScaler    # 归一化
+from sklearn.model_selection import train_test_split  # 划分数据集
+from sklearn.preprocessing import MinMaxScaler  # 归一化
 import os
+
 
 def get_data():
     current_dir = os.path.dirname(os.path.abspath(__file__))
