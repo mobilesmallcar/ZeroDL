@@ -20,8 +20,6 @@
 版本: 1.0
 """
 
-import numpy as np
-from functions import *  # 导入激活函数和损失函数
 
 # ============================================================================
 # [ ] 1. 实现所有神经网络层的前向传播
@@ -31,8 +29,8 @@ from functions import *  # 导入激活函数和损失函数
 # [ ] 5. 添加卷积层
 # [ ] 6. 添加池化层
 # ============================================================================
-from functions import ActivationFunctions
-
+from .functions import ActivationFunctions,LossFunctions
+import numpy as np
 
 class Relu:
     """
