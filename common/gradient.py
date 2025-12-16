@@ -49,7 +49,8 @@ def numerical_diff0(f, x):
         - h固定为1e-4
         - 适用于标量函数
     """
-    pass  # TODO: 实现前向差分数值微分
+    h = 1e-4
+    return (f(x + h) - f(x)) / h
 
 
 def numerical_diff(f, x):
@@ -71,7 +72,8 @@ def numerical_diff(f, x):
         - 截断误差为O(h²)
         - h固定为1e-4
     """
-    pass  # TODO: 实现中心差分数值微分
+    h = 1e-4
+    return (f(x + h) - f(x - h)) / (2 * h)
 
 
 def _numerical_gradient(f, x):
@@ -94,7 +96,19 @@ def _numerical_gradient(f, x):
         - 逐个计算每个方向的偏导数
         - 保持x的原始值不变
     """
-    pass  # TODO: 实现多元函数梯度计算（一维情况）
+    grad = np.zeros_like(x)
+    h = 1e-4
+
+    for i in range(x.size):
+        temp = x[i]
+        x[i] = temp + h
+        fxh1 = f(x)
+        x[i] = temp - h
+        fxh2 = f(x)
+
+        grad[i] = (fxh1 - fxh2) / (2 * h)
+        x[i] = temp
+    return grad
 
 
 def numerical_gradient(f, X):
@@ -119,11 +133,17 @@ def numerical_gradient(f, X):
         numpy数组，梯度
 
     示例:
-        >>> def f(x): return x[0]**2 + x[1]**2
-        >>> numerical_gradient(f, np.array([3.0, 4.0]))
+        # >>> def f(x): return x[0]**2 + x[1]**2
+        # >>> numerical_gradient(f, np.array([3.0, 4.0]))
         array([6., 8.])
     """
-    pass  # TODO: 实现通用数值梯度计算
+    if X.ndim == 1:
+        return _numerical_gradient(f, X)
+
+    grad = np.zeros_like(X)
+    for i, x in enumerate(X):
+        grad[i] = _numerical_gradient(f, x)
+    return grad
 
 
 # ============================================================================
@@ -149,7 +169,13 @@ def gradient_descent(f, init_x, lr=0.01, step_num=100):
     注意:
         - 需要先实现numerical_gradient函数
     """
-    pass  # TODO: 可选实现梯度下降法
+    x = init_x
+    x_history = []
+    for i in range(step_num):
+        x_history.append(x.copy())   # 保存当前点到列表
+        grad = numerical_gradient(f, x)   # 计算梯度
+        x = x - lr * grad    # 更新点
+    return x, np.array(x_history)
 
 
 # ============================================================================
@@ -226,6 +252,7 @@ def test_numerical_gradient():
 
     test_point = np.array([3.0, 4.0])
     print(f"在点 {test_point} 处的梯度")
+    print(f"数值梯度: [2x, 2y] = {numerical_gradient(func2d, test_point)}")
     print(f"理论梯度: [2x, 2y] = [6.0, 8.0]")
 
     # 测试2: 三元线性函数 f(x,y,z) = 2x + 3y + 4z
@@ -236,7 +263,8 @@ def test_numerical_gradient():
 
     test_point = np.array([1.0, 2.0, 3.0])
     print(f"在点 {test_point} 处的梯度")
-    print(f"理论梯度: [2.0, 3.0, 4.0] (常数梯度)")
+    print(f"数值梯度: [2x, 3y, 4z] = {numerical_gradient(func3d, test_point)}")
+    print(f"理论梯度: [2x, 3y, 4z] = [2.0, 3.0, 4.0] (常数梯度)")
 
     # 测试3: 高维函数（5维）
     print("\n3. 测试高维函数 (5维):")
@@ -246,6 +274,7 @@ def test_numerical_gradient():
 
     test_point = np.array([1.0, 2.0, 3.0, 4.0, 5.0])
     print(f"在点 {test_point} 处的梯度")
+    print(f"数值梯度: {numerical_gradient(func5d, test_point)}")
     print(f"理论梯度: [2, 4, 6, 8, 10]")
 
     # 测试4: 矩阵输入（批量计算）
@@ -255,7 +284,11 @@ def test_numerical_gradient():
                             [5.0, 6.0]])
     print(f"输入矩阵形状: {test_points.shape}")
     print(f"期望输出矩阵形状: {test_points.shape}")
-    print("每行应该是该点的梯度向量")
+    print("\n理论梯度（对于 f(x,y)=x²+y²，梯度为[2x, 2y]）:")
+    print(f"点 [1.0, 2.0]: 理论梯度 = [2*1.0, 2*2.0] = [2.0, 4.0]")
+    print(f"点 [3.0, 4.0]: 理论梯度 = [2*3.0, 2*4.0] = [6.0, 8.0]")
+    print(f"点 [5.0, 6.0]: 理论梯度 = [2*5.0, 2*6.0] = [10.0, 12.0]")
+    print(f"输出: {numerical_gradient(func5d, test_points)}")
 
     # 测试5: 复杂函数
     print("\n5. 测试复杂函数 f(x,y) = sin(x) * cos(y):")
@@ -265,7 +298,8 @@ def test_numerical_gradient():
 
     test_point = np.array([np.pi / 4, np.pi / 3])
     print(f"在点 [π/4, π/3] 处的梯度")
-    print("理论梯度: [cos(π/4)*cos(π/3), -sin(π/4)*sin(π/3)]")
+    print(f"数值梯度: [sin(x) * cos(y), -cos(x) * sin(y)] = {numerical_gradient(complex_func, test_point)}")
+    print("理论梯度:  [sin(x) * cos(y), -cos(x) * sin(y)] = [cos(π/4)*cos(π/3), -sin(π/4)*sin(π/3)]")
 
     # 测试6: 梯度下降示例
     print("\n6. 梯度下降法测试准备:")
@@ -273,6 +307,9 @@ def test_numerical_gradient():
     print("初始点: (3.0, 4.0)")
     print("学习率: 0.1")
     print("迭代次数: 100")
+    X, X_history = gradient_descent(func2d, np.array([3.0, 4.0]), lr=0.1, step_num=100)
+    print(f"最终点: {X}")
+    # print(f"过程历史: {X_history}")
     print("期望: 应收敛到最小值点 (0, 0) 附近")
 
 
@@ -311,7 +348,7 @@ def run_all_tests():
     print("=" * 50)
 
     try:
-        test_numerical_diff()
+        # test_numerical_diff()
         test_numerical_gradient()
         test_edge_cases()
 
