@@ -1,11 +1,13 @@
 import pandas as pd
 from sklearn.model_selection import train_test_split    # 划分数据集
 from sklearn.preprocessing import MinMaxScaler    # 归一化
-
+import os
 
 def get_data():
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    csv_path = os.path.join(current_dir, 'data', 'train.csv')
     # 1. 读取数据集
-    data = pd.read_csv('./data/train.csv')
+    data = pd.read_csv(csv_path)
     # 2. 划分训练集和测试集
     X = data.drop('label', axis=1)
     y = data['label']
@@ -17,3 +19,7 @@ def get_data():
     x_test = preprocessor.transform(x_test)
 
     return x_train, x_test, y_train.values, y_test.values
+
+if __name__ == '__main__':
+    x_train, x_test, y_train, y_test = get_data()
+    print(x_train.shape, x_test.shape, y_train.shape, y_test.shape)
