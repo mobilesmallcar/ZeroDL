@@ -22,8 +22,6 @@ import numpy as np
 
 
 # ============================================================================
-# TODO 列表
-# ============================================================================
 # [ ] 1. 实现所有激活函数
 # [ ] 2. 实现所有损失函数
 # [ ] 3. 添加梯度计算函数
@@ -50,10 +48,10 @@ class ActivationFunctions:
             numpy数组，输出值（0或1）
 
         示例:
-            >>> step_function(np.array([-1, 0, 1]))
+            # >>> step_function(np.array([-1, 0, 1]))
             array([0, 1, 1])
         """
-        pass  # TODO: 实现阶跃函数
+        return np.where(x >= 0, 1, 0)
 
     @staticmethod
     def sigmoid(x):
@@ -74,7 +72,7 @@ class ActivationFunctions:
             - 平滑可导
             - 常用于二分类问题的输出层
         """
-        pass  # TODO: 实现Sigmoid函数
+        return 1 / (1 + np.exp(-x))
 
     @staticmethod
     def relu(x):
@@ -95,7 +93,7 @@ class ActivationFunctions:
             - 缓解梯度消失问题
             - 常用作隐藏层激活函数
         """
-        pass  # TODO: 实现ReLU函数
+        return np.maximum(0, x)
 
     @staticmethod
     def softmax(x):
@@ -118,7 +116,14 @@ class ActivationFunctions:
             - 常用于多分类问题的输出层
             - 包含数值稳定性处理（防止指数溢出）
         """
-        pass  # TODO: 实现Softmax函数
+
+        if x.ndim == 2:
+            x = x.T
+            x = x - np.max(x, axis=0)
+            y = np.exp(x) / np.sum(np.exp(x), axis=0)
+            return y.T
+        x = x - np.max(x)
+        return np.exp(x) / np.sum(np.exp(x))
 
     @staticmethod
     def identity(x):
@@ -138,7 +143,7 @@ class ActivationFunctions:
             - 用于回归问题的输出层
             - 保持输入不变
         """
-        pass  # TODO: 实现恒等函数
+        return x
 
 
 class LossFunctions:
@@ -163,7 +168,7 @@ class LossFunctions:
             - 常用于回归问题
             - 对离群点敏感
         """
-        pass  # TODO: 实现均方误差
+        return 0.5 * np.sum((y - t) ** 2)
 
     @staticmethod
     def cross_entropy_error(y, t):
@@ -187,7 +192,15 @@ class LossFunctions:
             - 常用于分类问题
             - 包含数值稳定性处理（防止log(0)）
         """
-        pass  # TODO: 实现交叉熵误差
+        if y.ndim == 1:
+            y = y.reshape(1, -1)
+            t = t.reshape(1, -1)
+
+        if y.size == t.size:
+            t = t.argmax(axis=1)
+
+        n = y.shape[0]
+        return -np.sum(np.log(y[np.arange(n), t] + 1e-7)) / n
 
 
 # ============================================================================
@@ -203,6 +216,7 @@ def test_activation_functions():
     print("\n1. 测试阶跃函数:")
     test_input = np.array([-2.0, -1.0, 0.0, 1.0, 2.0])
     print(f"输入: {test_input}")
+    print(f"输出: {ActivationFunctions.step_function(test_input)}")
     print(f"期望输出: [0, 0, 1, 1, 1]")
 
     # 测试Sigmoid函数
@@ -210,12 +224,15 @@ def test_activation_functions():
     test_input = np.array([-1.0, 0.0, 1.0])
     print(f"输入: {test_input}")
     print(f"期望输出范围: 所有值在(0, 1)之间")
+    print(f"输出: {ActivationFunctions.sigmoid(test_input)}")
     print(f"期望对称性: sigmoid(-x) = 1 - sigmoid(x)")
 
     # 测试ReLU函数
     print("\n3. 测试ReLU函数:")
     test_input = np.array([-3.0, -1.0, 0.0, 1.0, 3.0])
     print(f"输入: {test_input}")
+    print(f"期望输出: 所有值都大于等于0")
+    print(f"输出: {ActivationFunctions.relu(test_input)}")
     print(f"期望输出: [0, 0, 0, 1, 3]")
 
     # 测试Softmax函数
@@ -225,6 +242,8 @@ def test_activation_functions():
                                   [2.0, 4.0, 6.0]])
     print(f"向量输入: {test_input_vector}")
     print(f"矩阵输入形状: {test_input_matrix.shape}")
+    print(f"输出: {ActivationFunctions.softmax(test_input_vector)}")
+    print(f"输出矩阵: {ActivationFunctions.softmax(test_input_matrix)}")
     print(f"期望输出: 所有输出的和为1")
     print(f"期望特性: 较大输入值对应的输出概率更大")
 
@@ -247,12 +266,14 @@ def test_loss_functions():
     y_true = np.array([0.1, 0.2, 0.3])
     print(f"预测值: {y_pred}")
     print(f"真实值: {y_true}")
+    print(f"输出: {LossFunctions.mean_squared_error(y_pred, y_true)}")
     print(f"期望输出: 0.0 (完美预测)")
 
     y_pred = np.array([0.1, 0.2, 0.3])
     y_true = np.array([0.0, 0.0, 0.0])
     print(f"\n预测值: {y_pred}")
     print(f"真实值: {y_true}")
+    print(f"输出: {LossFunctions.mean_squared_error(y_pred, y_true)}")
     print(f"期望输出: 大于0的数值")
 
     # 测试交叉熵误差
@@ -265,11 +286,15 @@ def test_loss_functions():
                               [0, 0, 1]])
     print(f"预测概率:\n{y_pred}")
     print(f"真实标签(one-hot):\n{y_true_onehot}")
+    print(f"输出: {LossFunctions.cross_entropy_error(y_pred, y_true_onehot)}")
     print("期望输出: 标量损失值")
 
     # 测试类别索引情况
     y_true_indices = np.array([1, 2])  # 正确类别索引
     print(f"\n真实标签(类别索引): {y_true_indices}")
+    print(f"输出: {LossFunctions.cross_entropy_error(y_pred, y_true_indices)}")
+    print("期望输出: 标量损失值")
+    print("期望特性: 预测概率分布与真实标签越接近，损失越小")
 
     # 测试边界情况
     print("\n3. 测试边界情况:")
@@ -277,6 +302,7 @@ def test_loss_functions():
     y_true_boundary = np.array([0, 0, 1])
     print(f"预测值包含0: {y_pred_boundary}")
     print(f"真实值: {y_true_boundary}")
+    print(f"输出: {LossFunctions.cross_entropy_error(y_pred_boundary, y_true_boundary)}")
     print("期望: 不应出现log(0)错误，应有数值稳定性处理")
 
 
@@ -285,18 +311,18 @@ def run_all_tests():
     print("神经网络函数库测试开始")
     print("=" * 50)
 
-    try:
-        test_activation_functions()
-        test_loss_functions()
+    # try:
+    test_activation_functions()
+    test_loss_functions()
 
-        print("\n" + "=" * 50)
-        print("所有测试用例定义完成")
-        print("请先实现各函数，然后运行测试验证正确性")
-        print("=" * 50)
+    print("\n" + "=" * 50)
+    print("所有测试用例定义完成")
+    print("请先实现各函数，然后运行测试验证正确性")
+    print("=" * 50)
 
-    except Exception as e:
-        print(f"\n测试过程中出现错误: {e}")
-        print("请确保函数已正确实现")
+    # except Exception as e:
+    #     print(f"\n测试过程中出现错误: {e}")
+    #     print("请确保函数已正确实现")
 
 
 if __name__ == "__main__":
