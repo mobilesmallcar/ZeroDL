@@ -19,7 +19,3 @@ def get_data():
     x_test = preprocessor.transform(x_test)
 
     return x_train, x_test, y_train.values, y_test.values
-
-if __name__ == '__main__':
-    x_train, x_test, y_train, y_test = get_data()
-    print(x_train.shape, x_test.shape, y_train.shape, y_test.shape)
