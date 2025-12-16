@@ -1,0 +1,81 @@
+# Python 字节码和缓存
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# 虚拟环境
+venv/
+env/
+.venv/
+ENV/
+env*/
+venv*/
+
+# Conda/Miniforge 环境（你当前用的是 pytorch-2.6.0-gpu）
+conda.env/
+.pytorch-2.6.0-gpu/
+envs/
+miniforge3/
+miniforge/
+
+# Jupyter Notebook 检查点
+.ipynb_checkpoints/
+
+# IDE 编辑器配置
+.idea/
+.vscode/
+*.sublime-workspace
+*.sublime-project
+
+# 数据文件（MNIST csv 通常不大，可以提交；但如果你有大文件或缓存数据，就忽略）
+common/data/*.npz
+common/data/*.h5
+common/data/*.pkl
+common/data/*.csv
+datasets/
+__pycache__/
+
+# 日志和临时文件
+*.log
+*.tmp
+*.bak
+*.swp
+.DS_Store
+Thumbs.db
+
+# 模型保存
+*.pth
+*.pt
+*.ckpt
+*.weights
+models/
+checkpoints/
+saved_models/
+
+# 实验记录（如 TensorBoard、wandb）
+runs/
+logs/
+events.out.tfevents.*
+wandb/
+
+# 测试输出
+htmlcov/
+.coverage
+.coverage.*
+coverage.xml
+*.cover
+
+# 构建和打包
+build/
+dist/
+*.egg-info/
+*.egg
+*.eggs
+
+# 其他常见
+*.manifest
+*.spec
