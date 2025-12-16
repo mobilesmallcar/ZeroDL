@@ -12,15 +12,15 @@ print('t_train shape:', y_train.shape)
 print('x_test shape:', x_test.shape)
 print('t_test shape:', y_test.shape)
 # 2.创建神经网络
-net = TwoLayerNet(input_size=784, hidden_size=20, output_size=10, weight_init_std=0.01)
+net = TwoLayerNet(input_size=784, hidden_size=35, output_size=10, weight_init_std=0.01)
 
 # 3.设置超参数
 train_size = x_train.shape[0]
 batch_size = 100
 iter_per_epoch = math.ceil(train_size / batch_size)
 
-iters_num = 10000
-learning_rate = 0.1
+iters_num = 20000
+learning_rate = 0.05
 
 train_acc_list = []
 test_acc_list = []
@@ -44,7 +44,7 @@ for i in range(iters_num):
     train_loss_list.append(loss)
     # print(f"iter {i},loss {loss}")
 
-    if i % iter_per_epoch == 0:
+    if i % (iter_per_epoch * 2) == 0:
         train_acc = net.accuracy(x_train, y_train)
         test_acc = net.accuracy(x_test, y_test)
         train_acc_list.append(train_acc)
