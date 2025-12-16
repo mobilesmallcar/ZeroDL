@@ -30,7 +30,7 @@ import time
 from commons.functions import ActivationFunctions, LossFunctions
 from commons.layer import Relu, Sigmoid, Affine, SoftmaxWithLoss
 from commons.optimizer import SGD, Momentum, AdaGrad, RMSProp, Adam
-from commons.gradient import numerical_diff
+from commons.gradient import numerical_diff, numerical_gradient
 
 
 class NeuralNetworkTestSuite:
@@ -249,7 +249,7 @@ class NeuralNetworkTestSuite:
             return np.sum(x ** 2)
 
         try:
-            from numerical_gradient import numerical_gradient
+
             test_point = np.array([3.0, 4.0])
             result = numerical_gradient(f_sphere, test_point)
             expected = np.array([6.0, 8.0])

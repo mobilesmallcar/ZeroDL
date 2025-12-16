@@ -34,15 +34,22 @@ import numpy as np
 
 class SGD:
     """
-    随机梯度下降法 (Stochastic Gradient Descent)
+    SGD (Stochastic Gradient Descent) 随机梯度下降
+    更新公式：
+        1. W ← W - α * ∇          # 参数沿梯度负方向更新
 
-    更新公式:
-        θ_{t+1} = θ_t - η * ∇L(θ_t)
+        - W: 模型参数
+        - ∇: 当前梯度
+        - α: 学习率（控制步长）
 
     特性:
-        - 最简单的优化算法
-        - 固定学习率
-        - 可能收敛较慢或在峡谷中震荡
+        - 最基础优化算法：直接利用梯度最小化损失
+        - 随机性：mini-batch 引入噪声，有助于逃离局部最优
+        - 计算高效：适合大规模数据
+        - 震荡收敛：路径锯齿状，但整体下降
+        - 学习率敏感：α 过大易发散，过小收敛慢
+        - 无自适应：所有参数统一学习率
+        - 基础性强：现代优化器（如Momentum、Adam）均以此为基础
     """
 
     def __init__(self, lr=0.01):
@@ -65,21 +72,28 @@ class SGD:
         返回:
             无，直接修改params
         """
-        return
+        for key in params.keys():
+            params[key] -= self.lr * grads[key]
 
 
 class Momentum:
     """
-    动量法 (Momentum)
+    Momentum 动量法
+    更新公式：
+        1. v ← a * v + η * ∇          # 速度累积：当前梯度 + 历史速度
+        2. W ← W - v                  # 参数更新：沿累积速度方向移动
 
-    更新公式:
-        v_{t+1} = α * v_t - η * ∇L(θ_t)
-        θ_{t+1} = θ_t + v_{t+1}
+        - v: 速度（动量项）
+        - ∇: 当前梯度即 ∂L/∂W
+        - a: 动量系数（通常 0.9）
+        - η: 学习率
 
     特性:
-        - 引入动量项，加速收敛
-        - 减少震荡
-        - α通常取0.9
+        - 加速收敛：累积历史梯度，平缓方向加速、陡峭方向减速
+        - 抑制震荡：穿越鞍部与局部谷地更平稳
+        - 路径平滑：更新轨迹更直接接近最优
+        - 简单高效：仅需存储速度v
+        - 适合复杂损失景观：比纯SGD更快收敛
     """
 
     def __init__(self, lr=0.01, momentum=0.9):
@@ -108,22 +122,34 @@ class Momentum:
         返回:
             无，直接修改params
         """
-        pass  # TODO: 实现Momentum参数更新
+        if self.v is None:
+            self.v = {}
+            for key, val in params.items():
+                self.v[key] = np.zeros_like(val)
+        for key in params.keys():
+            self.v[key] = self.momentum * self.v[key] - self.lr * grads[key]
+            params[key] = self.v[key]
 
 
 class AdaGrad:
     """
-    AdaGrad (Adaptive Gradient Algorithm)
+    AdaGrad (Adaptive Gradient) 自适应梯度算法
+    更新公式：
+        1. h ← h + ∇²                 # 累积梯度平方
+        2. W ← W - α * ∇ / (√h + ε)   # 自适应更新：历史梯度越大步长越小
 
-    更新公式:
-        h_{t+1} = h_t + ∇L(θ_t) ⊙ ∇L(θ_t)
-        θ_{t+1} = θ_t - η * ∇L(θ_t) / (√h_{t+1} + ε)
+        - h: 梯度平方的累积和
+        - ∇: 当前梯度
+        - α: 初始学习率
+        - ε: 防除零小常数（1e-7）
 
     特性:
-        - 自适应学习率
-        - 为每个参数调整学习率
-        - 适合稀疏数据
-        - 学习率可能过早衰减
+        - 自适应学习率：频繁参数学习率快速衰减，稀疏参数保持较大步长
+        - 适合稀疏数据：特征出现频率差异大时效果好
+        - 无需手动调学习率：自动调整每个参数步长
+        - 学习率单调衰减：后期可能过小导致收敛停滞
+        - 内存高效：仅需存储h
+        - 基础性强：RMSProp、Adam等后续优化器的灵感来源
     """
 
     def __init__(self, lr=0.01):
@@ -150,21 +176,34 @@ class AdaGrad:
         返回:
             无，直接修改params
         """
-        pass  # TODO: 实现AdaGrad参数更新
+        if self.h is None:
+            self.h = {}
+            for key, val in params.items():
+                self.h[key] = np.zeros_like(val)
+        for key in params.keys():
+            self.h[key] += grads[key] ** 2
+            params[key] -= self.lr * grads[key] / (np.sqrt(self.h[key]) + 1e-7)
 
 
 class RMSProp:
     """
-    RMSProp (Root Mean Square Propagation)
+    RMSProp (Root Mean Square Propagation) 均方根传播
+    更新公式：
+        1. h ← α * h + (1 - α) * ∇²         # 梯度平方的指数移动平均
+        2. W ← W - η * ∇ / √(h + ε)         # 自适应更新
 
-    更新公式:
-        h_{t+1} = α * h_t + (1 - α) * ∇L(θ_t) ⊙ ∇L(θ_t)
-        θ_{t+1} = θ_t - η * ∇L(θ_t) / (√h_{t+1} + ε)
+        - h: 梯度平方的移动平均
+        - ∇: 当前梯度
+        - α: 衰减率（通常 0.99）
+        - η: 学习率
+        - ε: 防除零小常数（1e-7）
 
     特性:
-        - 改进的AdaGrad，解决学习率衰减问题
-        - 使用指数移动平均
-        - α通常取0.9
+        - 自适应学习率：梯度大时步长小，梯度小时步长大
+        - 缓解AdaGrad学习率衰减过快问题
+        - 抑制震荡、加速收敛
+        - 适合非平稳与稀疏梯度场景
+        - 内存高效：仅需存储h
     """
 
     def __init__(self, lr=0.01, alpha=0.9):
@@ -193,24 +232,40 @@ class RMSProp:
         返回:
             无，直接修改params
         """
-        pass  # TODO: 实现RMSProp参数更新
+        if self.h is None:
+            self.h = {}
+            for key, val in params.items():
+                self.h[key] = np.zeros_like(val)
+        for key in params.keys():
+            self.h[key] *= self.alpha
+            self.h[key] += (1 - self.alpha) * grads[key] * grads[key]
+            params[key] -= self.lr * grads[key] / (np.sqrt(self.h[key]) + 1e-7)
 
 
 class Adam:
     """
-    Adam (Adaptive Moment Estimation)
+    Adam (Adaptive Moment Estimation) 自适应矩估计
+    更新公式：
+        1. v ← α1 * v + (1 - α1) * ∇          # 一阶矩（动量）
+        2. h ← α2 * h + (1 - α2) * ∇²         # 二阶矩（自适应）
+        3. \\hat{v} ← v / (1 - α1^t)           # 一阶偏差修正
+        4. \\hat{h} ← h / (1 - α2^t)           # 二阶偏差修正
+        5. W ← W - η * \\hat{v} / √(\\hat{h} + ε)   # 参数更新
 
-    更新公式:
-        m_{t+1} = β₁ * m_t + (1 - β₁) * ∇L(θ_t)           # 一阶矩估计
-        v_{t+1} = β₂ * v_t + (1 - β₂) * ∇L(θ_t) ⊙ ∇L(θ_t)  # 二阶矩估计
-        m̂_t = m_t / (1 - β₁^t)                           # 偏差修正
-        v̂_t = v_t / (1 - β₂^t)
-        θ_{t+1} = θ_t - η * m̂_t / (√v̂_t + ε)
+        - v: 一阶矩（梯度均值）
+        - h: 二阶矩（梯度平方均值）
+        - α1: 一阶衰减率（通常 0.9）
+        - α2: 二阶衰减率（通常 0.999）
+        - η: 学习率
+        - ε: 防除零小常数（1e-8）
+        - t: 更新步数
 
     特性:
-        - 结合了动量和自适应学习率
-        - 默认参数通常效果很好
-        - 需要偏差修正
+        - 融合动量与RMSProp：方向稳定 + 自适应步长
+        - 偏差修正：早期训练更稳定
+        - 收敛快、鲁棒性强：适合噪声/稀疏梯度
+        - 超参数友好：默认值表现优秀
+        - 内存需求：每个参数存v和h
     """
 
     def __init__(self, lr=0.01, alpha1=0.9, alpha2=0.999):
@@ -245,4 +300,17 @@ class Adam:
         返回:
             无，直接修改params
         """
-        pass  # TODO: 实现Adam参数更新
+        if self.v is None:
+            self.v, self.h = {}, {}
+            for key in params.keys():
+                self.v[key] = np.zeros_like(params[key])
+                self.h[key] = np.zeros_like(params[key])
+        self.t += 1
+        lr_t = self.lr * np.sqrt(1.0 - self.alpha2**self.t) / (1.0 - self.alpha1**self.t)
+        # 更新参数
+        for key in params.keys():
+            # self.v[key] = self.alpha1 * self.v[key] + (1 - self.alpha1) * grads[key]
+            # self.h[key] = self.alpha2 * self.h[key] + (1 - self.alpha2) * (grads[key]**2)
+            self.v[key] += (1 - self.alpha1) * (grads[key] - self.v[key])
+            self.h[key] += (1 - self.alpha2) * (grads[key]**2 - self.h[key])
+            params[key] -= lr_t * self.v[key] / (np.sqrt(self.h[key]) + 1e-7)
