@@ -21,8 +21,6 @@ import numpy as np
 
 
 # ============================================================================
-# TODO 列表
-# ============================================================================
 # [ ] 1. 实现数值微分函数
 # [ ] 2. 实现数值梯度计算函数
 # [ ] 3. 添加向量化梯度计算
@@ -172,9 +170,9 @@ def gradient_descent(f, init_x, lr=0.01, step_num=100):
     x = init_x
     x_history = []
     for i in range(step_num):
-        x_history.append(x.copy())   # 保存当前点到列表
-        grad = numerical_gradient(f, x)   # 计算梯度
-        x = x - lr * grad    # 更新点
+        x_history.append(x.copy())  # 保存当前点到列表
+        grad = numerical_gradient(f, x)  # 计算梯度
+        x = x - lr * grad  # 更新点
     return x, np.array(x_history)
 
 
