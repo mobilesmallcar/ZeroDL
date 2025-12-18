@@ -80,9 +80,12 @@ class Momentum:
     """
     Momentum 动量法
     更新公式：
+        减法版本
         1. v ← a * v + η * ∇          # 速度累积：当前梯度 + 历史速度
         2. W ← W - v                  # 参数更新：沿累积速度方向移动
-
+        加法版本
+        1. v ← a × v  +  (1 - a) × ∇      # 速度 = 保留旧速度 + 一小部分当前梯度
+        2. W ← W  -  η × v               # 参数向（负）速度方向移动（因为要下山）
         - v: 速度（动量项）
         - ∇: 当前梯度即 ∂L/∂W
         - a: 动量系数（通常 0.9）
@@ -128,7 +131,7 @@ class Momentum:
                 self.v[key] = np.zeros_like(val)
         for key in params.keys():
             self.v[key] = self.momentum * self.v[key] - self.lr * grads[key]
-            params[key] = self.v[key]
+            params[key] += self.v[key]
 
 
 class AdaGrad:
