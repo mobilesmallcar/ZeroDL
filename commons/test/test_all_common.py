@@ -10,11 +10,11 @@
 4. 优化算法
 
 使用说明:
-    python test_all.py    # 运行所有测试
-    python test_all.py --test activation  # 只测试激活函数
-    python test_all.py --test layers      # 只测试神经网络层
+    python -m commons.test.test_all_common    # 运行所有测试
+    python -m commons.test.test_all_common --test activation  # 只测试激活函数
+    python -m commons.test.test_all_common --test layers      # 只测试神经网络层
 
-作者: 测试框架开发者
+作者: xsy
 版本: 1.0
 """
 

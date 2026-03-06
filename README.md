@@ -127,9 +127,9 @@
 ### 2. 运行测试
 ```bash
 # 到项目根目录
-cd */ml-learninng
+cd */ZeroDL
 # 测试所有组件
-python -m commons.test_all_common
+python -m commons.test.test_all_common
 
 # 只测试神经网络层
 python -m apis.test_backward_network
