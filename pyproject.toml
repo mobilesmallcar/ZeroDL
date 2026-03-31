@@ -5,7 +5,22 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = "==3.12.12"
 dependencies = [
+    "torch",
+    "torchvision",
     "numpy>=2.4.4",
     "pandas>=3.0.1",
     "scikit-learn>=1.8.0",
+    "tiktoken>=0.12.0",
 ]
+
+# ──────────────────────────────────────────────
+# 显式定义 PyTorch 专用 index
+[[tool.uv.index]]
+name = "pytorch-cu130"
+url = "https://download.pytorch.org/whl/cu130"
+explicit = true
+
+# 强制 torch 和 torchvision 只走上面定义的 index
+[tool.uv.sources]
+torch = { index = "pytorch-cu130" }
+torchvision = { index = "pytorch-cu130" }
